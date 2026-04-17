@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { useAuth } from "@/lib/auth-context";
 import { useReports } from "@/lib/reports-context";
 import { GlassCard } from "@/components/glass";
@@ -16,7 +17,18 @@ import {
   X,
   Upload,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
+
+// Dynamic import of the mini map component (SSR disabled to avoid "window is not defined")
+const LocationMiniMap = dynamic(() => import("@/components/location-mini-map"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[220px] rounded-2xl bg-slate-100/60 flex items-center justify-center">
+      <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
+    </div>
+  ),
+});
 
 export default function CreateReportPage() {
   const { user } = useAuth();
@@ -38,6 +50,10 @@ export default function CreateReportPage() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  // GPS location states
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState("");
 
   // Fetch categories from API
   useEffect(() => {
@@ -77,12 +93,76 @@ export default function CreateReportPage() {
     }
   };
 
+  // --- GPS Location Handler ---
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError("Browser Anda tidak mendukung fitur geolokasi.");
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationError("");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setForm((prev) => ({
+          ...prev,
+          latitude: latitude.toString(),
+          longitude: longitude.toString(),
+        }));
+        setIsLocating(false);
+        setLocationError("");
+        // Clear location error in form errors if it existed
+        if (errors.location) {
+          setErrors((prev) => {
+            const next = { ...prev };
+            delete next.location;
+            return next;
+          });
+        }
+      },
+      (error) => {
+        setIsLocating(false);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setLocationError(
+              "Akses lokasi wajib diizinkan untuk mengirim laporan"
+            );
+            break;
+          case error.POSITION_UNAVAILABLE:
+            setLocationError(
+              "Informasi lokasi tidak tersedia. Pastikan GPS Anda aktif."
+            );
+            break;
+          case error.TIMEOUT:
+            setLocationError(
+              "Permintaan lokasi habis waktu. Silakan coba lagi."
+            );
+            break;
+          default:
+            setLocationError("Gagal mendapatkan lokasi. Silakan coba lagi.");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0,
+      }
+    );
+  };
+
   const validate = () => {
     const e = {};
     if (!form.title.trim()) e.title = "Judul wajib diisi";
     if (!form.category_id) e.category_id = "Pilih kategori";
     if (!form.description.trim()) e.description = "Deskripsi wajib diisi";
     if (!form.address.trim()) e.address = "Alamat wajib diisi";
+    // Strict validation: coordinates are mandatory
+    if (!form.latitude || !form.longitude) {
+      e.location =
+        "Akses lokasi wajib diizinkan untuk mengirim laporan";
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -108,15 +188,17 @@ export default function CreateReportPage() {
         }
       }
 
-      // Create report via API
+      // Create report via API — coordinates sent as float
       const result = await addReport({
         title: form.title,
         category_id: parseInt(form.category_id),
         description: form.description,
-        photo_url: photoUrl || "https://images.unsplash.com/photo-1584824388878-ca05cd30e8dd?w=800",
+        photo_url:
+          photoUrl ||
+          "https://images.unsplash.com/photo-1584824388878-ca05cd30e8dd?w=800",
         address: form.address,
-        latitude: form.latitude ? parseFloat(form.latitude) : null,
-        longitude: form.longitude ? parseFloat(form.longitude) : null,
+        latitude: parseFloat(form.latitude),
+        longitude: parseFloat(form.longitude),
         region: "Jakarta",
       });
 
@@ -133,6 +215,8 @@ export default function CreateReportPage() {
     }
   };
 
+  const hasCoordinates = form.latitude !== "" && form.longitude !== "";
+
   if (success) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center animate-fade-in-up">
@@ -140,9 +224,15 @@ export default function CreateReportPage() {
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-500/30">
             <CheckCircle2 className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-xl font-bold text-slate-800">Laporan Berhasil Dikirim!</h2>
-          <p className="text-slate-500 mt-2">Laporan Anda akan segera diverifikasi oleh admin.</p>
-          <p className="text-sm text-slate-400 mt-3">Mengalihkan ke riwayat laporan...</p>
+          <h2 className="text-xl font-bold text-slate-800">
+            Laporan Berhasil Dikirim!
+          </h2>
+          <p className="text-slate-500 mt-2">
+            Laporan Anda akan segera diverifikasi oleh admin.
+          </p>
+          <p className="text-sm text-slate-400 mt-3">
+            Mengalihkan ke riwayat laporan...
+          </p>
         </GlassCard>
       </div>
     );
@@ -151,7 +241,9 @@ export default function CreateReportPage() {
   return (
     <div className="max-w-3xl mx-auto animate-fade-in-up">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Buat Laporan Baru</h1>
+        <h1 className="text-2xl font-bold text-slate-800">
+          Buat Laporan Baru
+        </h1>
         <p className="text-slate-500 mt-1">
           Laporkan masalah drainase di lingkungan Anda dengan lengkap dan akurat.
         </p>
@@ -177,7 +269,9 @@ export default function CreateReportPage() {
               placeholder="Contoh: Saluran air tersumbat di Jl. Merdeka"
               className={`w-full px-4 py-3 rounded-xl glass-input text-sm focus:outline-none ${errors.title ? "border-red-300" : ""}`}
             />
-            {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
+            {errors.title && (
+              <p className="text-xs text-red-500 mt-1">{errors.title}</p>
+            )}
           </div>
 
           {/* Category */}
@@ -192,10 +286,14 @@ export default function CreateReportPage() {
             >
               <option value="">Pilih kategori...</option>
               {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
               ))}
             </select>
-            {errors.category_id && <p className="text-xs text-red-500 mt-1">{errors.category_id}</p>}
+            {errors.category_id && (
+              <p className="text-xs text-red-500 mt-1">{errors.category_id}</p>
+            )}
           </div>
 
           {/* Description */}
@@ -210,7 +308,11 @@ export default function CreateReportPage() {
               rows={4}
               className={`w-full px-4 py-3 rounded-xl glass-input text-sm focus:outline-none resize-none ${errors.description ? "border-red-300" : ""}`}
             />
-            {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description}</p>}
+            {errors.description && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.description}
+              </p>
+            )}
           </div>
 
           {/* Photo Upload */}
@@ -249,7 +351,9 @@ export default function CreateReportPage() {
                   <p className="text-sm text-slate-500">
                     Klik atau drag & drop foto di sini
                   </p>
-                  <p className="text-xs text-slate-400 mt-1">PNG, JPG, JPEG (Maks. 5MB)</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    PNG, JPG, JPEG (Maks. 5MB)
+                  </p>
                 </>
               )}
               <input
@@ -274,43 +378,103 @@ export default function CreateReportPage() {
               placeholder="Masukkan alamat lengkap lokasi masalah"
               className={`w-full px-4 py-3 rounded-xl glass-input text-sm focus:outline-none ${errors.address ? "border-red-300" : ""}`}
             />
-            {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
+            {errors.address && (
+              <p className="text-xs text-red-500 mt-1">{errors.address}</p>
+            )}
           </div>
 
-          {/* Coordinates */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-600 mb-1.5">
-                <Navigation className="w-4 h-4" /> Latitude
-              </label>
-              <input
-                type="number"
-                step="any"
-                value={form.latitude}
-                onChange={handleChange("latitude")}
-                placeholder="-6.2088"
-                className="w-full px-4 py-3 rounded-xl glass-input text-sm focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-600 mb-1.5">
-                <Navigation className="w-4 h-4" /> Longitude
-              </label>
-              <input
-                type="number"
-                step="any"
-                value={form.longitude}
-                onChange={handleChange("longitude")}
-                placeholder="106.8456"
-                className="w-full px-4 py-3 rounded-xl glass-input text-sm focus:outline-none"
-              />
-            </div>
+          {/* GPS Location Detection */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-slate-600 mb-1.5">
+              <Navigation className="w-4 h-4" /> Koordinat GPS
+            </label>
+
+            {/* Glassmorphism GPS Button */}
+            <button
+              type="button"
+              onClick={handleGetLocation}
+              disabled={isLocating}
+              className="w-full relative overflow-hidden group rounded-2xl py-3.5 px-5 flex items-center justify-center gap-3 font-medium text-sm transition-all duration-300 disabled:cursor-wait border border-white/30 backdrop-blur-xl shadow-lg hover:shadow-xl"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(59, 130, 246, 0.15) 50%, rgba(139, 92, 246, 0.12) 100%)",
+                borderColor: hasCoordinates
+                  ? "rgba(34, 197, 94, 0.4)"
+                  : "rgba(255, 255, 255, 0.3)",
+              }}
+            >
+              {/* Glass shimmer effect */}
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
+
+              {isLocating ? (
+                <>
+                  <Loader2 className="w-5 h-5 text-cyan-500 animate-spin" />
+                  <span className="text-cyan-600">
+                    Mencari lokasi Anda...
+                  </span>
+                </>
+              ) : hasCoordinates ? (
+                <>
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md shadow-green-500/25">
+                    <CheckCircle2 className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-green-700 font-semibold">
+                    Lokasi Terdeteksi
+                  </span>
+                  <span className="text-xs text-green-600/80 ml-auto font-mono">
+                    {parseFloat(form.latitude).toFixed(6)},{" "}
+                    {parseFloat(form.longitude).toFixed(6)}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shadow-md shadow-cyan-500/25 group-hover:shadow-lg group-hover:shadow-cyan-500/40 transition-shadow">
+                    <Navigation className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-slate-700 group-hover:text-cyan-700 transition-colors">
+                    Dapatkan Lokasi Saya Saat Ini
+                  </span>
+                  <MapPin className="w-4 h-4 text-slate-400 ml-auto group-hover:text-cyan-500 transition-colors" />
+                </>
+              )}
+            </button>
+
+            {/* Location Error */}
+            {locationError && (
+              <div className="mt-2 p-3 rounded-xl bg-red-50/80 border border-red-200/80 backdrop-blur-sm flex items-start gap-2 animate-fade-in">
+                <X className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-red-600">{locationError}</p>
+              </div>
+            )}
+
+            {/* Validation Error */}
+            {errors.location && !locationError && (
+              <p className="text-xs text-red-500 mt-1">{errors.location}</p>
+            )}
+
+            {/* Mini Map — only rendered after coordinates are obtained */}
+            {hasCoordinates && (
+              <div className="mt-3 rounded-2xl overflow-hidden border border-white/30 shadow-lg animate-fade-in">
+                <LocationMiniMap
+                  latitude={parseFloat(form.latitude)}
+                  longitude={parseFloat(form.longitude)}
+                />
+              </div>
+            )}
           </div>
 
           {/* Auto Date */}
           <div className="glass p-4 rounded-xl">
             <p className="text-sm text-slate-500">
-              📅 Tanggal Laporan: <span className="font-medium text-slate-700">{new Date().toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</span>
+              📅 Tanggal Laporan:{" "}
+              <span className="font-medium text-slate-700">
+                {new Date().toLocaleDateString("id-ID", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
             </p>
           </div>
 
