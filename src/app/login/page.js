@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Droplets, Mail, Lock, LogIn, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import { Mail, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -51,9 +52,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center shadow-lg shadow-cyan-500/30">
-              <Droplets className="w-7 h-7 text-white" />
-            </div>
+            <Image src="/logo.png" alt="SiDrain Logo" width={48} height={48} className="w-12 h-12 object-contain" />
           </Link>
           <h1 className="text-2xl font-bold text-slate-800 mt-4">Selamat Datang Kembali</h1>
           <p className="text-slate-500 mt-1">Masuk ke akun SiDrain Anda</p>
@@ -132,27 +131,6 @@ export default function LoginPage() {
                 Daftar Sekarang
               </Link>
             </p>
-          </div>
-
-          {/* Demo accounts */}
-          <div className="mt-6 pt-6 border-t border-white/30">
-            <p className="text-xs text-slate-400 text-center mb-3">Akun Demo</p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => { setEmail("ahmad@gmail.com"); setPassword("password123"); }}
-                className="text-xs px-3 py-2 rounded-lg glass hover:bg-white/60 text-slate-500 transition-all"
-              >
-                👤 Warga
-              </button>
-              <button
-                type="button"
-                onClick={() => { setEmail("admin@sidrain.go.id"); setPassword("admin123"); }}
-                className="text-xs px-3 py-2 rounded-lg glass hover:bg-white/60 text-slate-500 transition-all"
-              >
-                🛡️ Admin
-              </button>
-            </div>
           </div>
         </div>
       </div>

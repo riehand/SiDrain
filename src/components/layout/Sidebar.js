@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -8,7 +9,6 @@ import {
   FilePlus,
   FileText,
   LogOut,
-  Droplets,
   Map,
   FolderOpen,
   BarChart3,
@@ -72,9 +72,7 @@ export default function Sidebar({ role = "citizen" }) {
       {/* ===== MOBILE TOP BAR ===== */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 glass-navbar h-14 flex items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center shadow-md shadow-cyan-500/20">
-            <Droplets className="w-4 h-4 text-white" />
-          </div>
+          <Image src="/logo.png" alt="SiDrain Logo" width={32} height={32} className="w-8 h-8 object-contain" />
           <span className="text-base font-bold bg-gradient-to-r from-cyan-700 to-teal-600 bg-clip-text text-transparent">
             SiDrain
           </span>
@@ -104,9 +102,7 @@ export default function Sidebar({ role = "citizen" }) {
         {/* Drawer Header */}
         <div className="h-14 flex items-center justify-between px-4 border-b border-white/20">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center shadow-md shadow-cyan-500/20">
-              <Droplets className="w-4 h-4 text-white" />
-            </div>
+            <Image src="/logo.png" alt="SiDrain Logo" width={32} height={32} className="w-8 h-8 object-contain" />
             <span className="text-base font-bold bg-gradient-to-r from-cyan-700 to-teal-600 bg-clip-text text-transparent">
               SiDrain
             </span>
@@ -175,9 +171,7 @@ export default function Sidebar({ role = "citizen" }) {
         {/* Logo */}
         <div className="h-16 flex items-center px-4 border-b border-white/20">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0">
-              <Droplets className="w-5 h-5 text-white" />
-            </div>
+            <Image src="/logo.png" alt="SiDrain Logo" width={36} height={36} className="w-9 h-9 object-contain shrink-0" />
             <span className="text-lg font-bold bg-gradient-to-r from-cyan-700 to-teal-600 bg-clip-text text-transparent">
               SiDrain
             </span>

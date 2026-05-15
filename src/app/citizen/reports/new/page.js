@@ -59,7 +59,7 @@ export default function CreateReportPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("/api/categories");
+        const res = await fetch("/api/categories", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           setCategories(data.categories);
@@ -199,7 +199,7 @@ export default function CreateReportPage() {
         address: form.address,
         latitude: parseFloat(form.latitude),
         longitude: parseFloat(form.longitude),
-        region: "Jakarta",
+        region: "Bojongsoang",
       });
 
       if (result.success) {

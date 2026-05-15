@@ -124,7 +124,7 @@ export async function POST(request) {
         latitude: latitude ? parseFloat(latitude) : null,
         longitude: longitude ? parseFloat(longitude) : null,
         status: "Menunggu Verifikasi",
-        region: region || "Jakarta",
+        region: region || "Bojongsoang",
       },
     });
 

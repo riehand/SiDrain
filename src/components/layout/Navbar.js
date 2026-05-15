@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
-import { Droplets, Menu, X, LogIn, UserPlus } from "lucide-react";
+import { Menu, X, LogIn, UserPlus } from "lucide-react";
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -22,9 +23,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:shadow-cyan-500/40 transition-shadow">
-              <Droplets className="w-5 h-5 text-white" />
-            </div>
+            <Image src="/logo.png" alt="SiDrain Logo" width={36} height={36} className="w-9 h-9 object-contain" />
             <span className="text-lg font-bold bg-gradient-to-r from-cyan-700 to-teal-600 bg-clip-text text-transparent">
               SiDrain
             </span>

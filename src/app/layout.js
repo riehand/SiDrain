@@ -16,6 +16,10 @@ export const metadata = {
   description:
     "Platform digital untuk membantu masyarakat melaporkan masalah drainase seperti saluran tersumbat, sampah menumpuk, dan genangan air agar dapat segera ditindaklanjuti untuk pencegahan banjir.",
   keywords: "drainase, banjir, laporan, saluran air, pencegahan banjir",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }) {

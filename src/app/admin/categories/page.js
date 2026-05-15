@@ -50,30 +50,46 @@ export default function CategoryManagementPage() {
     setShowModal(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name.trim()) return;
 
-    if (editingCat) {
-      setCats(cats.map((c) =>
-        c.id === editingCat.id
-          ? { ...c, name: form.name, description: form.description, updated_at: new Date().toISOString() }
-          : c
-      ));
-    } else {
-      const newCat = {
-        id: cats.length > 0 ? Math.max(...cats.map((c) => c.id)) + 1 : 1,
-        name: form.name,
-        description: form.description,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      setCats([...cats, newCat]);
+    try {
+      if (editingCat) {
+        const res = await fetch(`/api/categories/${editingCat.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCats(cats.map((c) => (c.id === editingCat.id ? data.category : c)));
+        }
+      } else {
+        const res = await fetch("/api/categories", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCats([...cats, data.category]);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to save category:", error);
     }
     setShowModal(false);
   };
 
-  const handleDelete = (id) => {
-    setCats(cats.filter((c) => c.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`/api/categories/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setCats(cats.filter((c) => c.id !== id));
+      }
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+    }
     setDeleteConfirm(null);
   };
 

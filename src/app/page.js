@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
+import Image from "next/image";
 import {
-  Droplets,
   MapPin,
   Shield,
   BarChart3,
@@ -51,7 +51,7 @@ export default function LandingPage() {
             {/* Left Content */}
             <div className="animate-fade-in-up">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-sm font-medium text-cyan-700 mb-6">
-                <Droplets className="w-4 h-4" />
+                <Image src="/logo.png" alt="SiDrain" width={20} height={20} className="w-5 h-5 object-contain" />
                 Sistem Pelaporan Drainase
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-800 leading-tight">
@@ -352,8 +352,8 @@ export default function LandingPage() {
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="glass-card p-10 sm:p-16 animate-fade-in-up">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-cyan-500/30">
-              <Droplets className="w-8 h-8 text-white" />
+            <div className="flex items-center justify-center mx-auto mb-6">
+              <Image src="/logo.png" alt="SiDrain Logo" width={64} height={64} className="w-16 h-16 object-contain" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-4">
               Setiap Laporan Anda Membantu Mencegah Banjir Lebih Dini

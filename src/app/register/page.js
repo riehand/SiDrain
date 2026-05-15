@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Droplets, User, Mail, Phone, MapPin, Lock, UserPlus, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import { User, Mail, Phone, MapPin, Lock, UserPlus, Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -70,9 +71,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-lg relative z-10 animate-fade-in-up">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center shadow-lg shadow-cyan-500/30">
-              <Droplets className="w-7 h-7 text-white" />
-            </div>
+            <Image src="/logo.png" alt="SiDrain Logo" width={48} height={48} className="w-12 h-12 object-contain" />
           </Link>
           <h1 className="text-2xl font-bold text-slate-800 mt-4">Daftar Akun Baru</h1>
           <p className="text-slate-500 mt-1">Bergabunglah untuk membantu mencegah banjir</p>

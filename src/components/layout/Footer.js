@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Droplets, Heart } from "lucide-react";
+import Image from "next/image";
+import { Heart } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -9,9 +10,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <Droplets className="w-5 h-5 text-white" />
-              </div>
+              <Image src="/logo.png" alt="SiDrain Logo" width={36} height={36} className="w-9 h-9 object-contain" />
               <span className="text-lg font-bold bg-gradient-to-r from-cyan-700 to-teal-600 bg-clip-text text-transparent">
                 SiDrain
               </span>
@@ -64,9 +63,8 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-slate-700 mb-3">Kontak</h4>
             <ul className="space-y-2 text-sm text-slate-500">
-              <li>📧 info@sidrain.go.id</li>
-              <li>📞 (021) 555-0100</li>
-              <li>📍 Kantor Dinas PU, Jakarta</li>
+              <li>📞 0881 085 156 156 (admin)</li>
+              <li>📍 Bandung</li>
             </ul>
           </div>
         </div>
@@ -75,7 +73,7 @@ export default function Footer() {
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-slate-400">
-            © 2025 SiDrain. Sistem Pelaporan Saluran Air Tersumbat.
+            © 2026 SiDrain. Sistem Pelaporan Saluran Air Tersumbat.
           </p>
           <p className="text-sm text-slate-400 flex items-center gap-1">
             Dibuat dengan <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" /> untuk Indonesia
