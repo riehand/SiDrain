@@ -200,6 +200,30 @@ export function ReportsProvider({ children }) {
     setNotifications([]);
   }, []);
 
+  // Delete a report via API (citizen)
+  const deleteReport = useCallback(
+    async (reportId) => {
+      try {
+        const res = await fetch(`/api/reports/${reportId}`, {
+          method: "DELETE",
+        });
+
+        if (res.ok) {
+          setReports((prev) => prev.filter((r) => r.id !== reportId));
+          broadcast("REFRESH", {});
+          return { success: true };
+        } else {
+          const data = await res.json();
+          return { success: false, error: data.error };
+        }
+      } catch (error) {
+        console.error("Failed to delete report:", error);
+        return { success: false, error: "Gagal menghapus laporan" };
+      }
+    },
+    [broadcast]
+  );
+
   // Stats (computed from local state)
   const getStats = useCallback(() => {
     const total = reports.length;
@@ -223,6 +247,7 @@ export function ReportsProvider({ children }) {
         getReportById,
         fetchReportDetail,
         fetchReports,
+        deleteReport,
         markNotificationRead,
         clearNotifications,
         getStats,

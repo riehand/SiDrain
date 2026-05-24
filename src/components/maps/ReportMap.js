@@ -68,8 +68,8 @@ function MapContent({ L, reports, onMarkerClick, selectedStatus, selectedCategor
 
   return (
     <MapContainer
-      center={[-6.3, 106.85]}
-      zoom={10}
+      center={[-6.9175, 107.6191]}
+      zoom={12}
       style={{ height: "100%", width: "100%", borderRadius: "1rem" }}
       scrollWheelZoom={true}
     >
