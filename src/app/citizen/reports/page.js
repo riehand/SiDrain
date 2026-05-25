@@ -84,7 +84,13 @@ export default function ReportHistoryPage() {
               <GlassCard className="flex items-center gap-3 cursor-pointer">
                 {/* Photo */}
                 <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl overflow-hidden shrink-0 bg-slate-100">
-                  <img src={report.photo_url} alt={report.title} className="w-full h-full object-cover" />
+                  {report.photo_url ? (
+                    <img src={report.photo_url} alt={report.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-300">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                  )}
                 </div>
 
                 {/* Info */}

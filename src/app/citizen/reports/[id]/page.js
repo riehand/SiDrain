@@ -20,6 +20,7 @@ import {
   Trash2,
   AlertTriangle,
   X,
+  Camera,
 } from "lucide-react";
 
 export default function ReportDetailPage() {
@@ -192,11 +193,18 @@ export default function ReportDetailPage() {
           {/* Photo */}
           <GlassCard hover={false}>
             <div className="rounded-lg sm:rounded-xl overflow-hidden bg-slate-100">
-              <img
-                src={displayReport.photo_url}
-                alt={displayReport.title}
-                className="w-full h-48 sm:h-64 lg:h-80 object-cover"
-              />
+              {displayReport.photo_url ? (
+                <img
+                  src={displayReport.photo_url}
+                  alt={displayReport.title}
+                  className="w-full h-48 sm:h-64 lg:h-80 object-cover"
+                />
+              ) : (
+                <div className="w-full h-48 sm:h-64 lg:h-80 flex flex-col items-center justify-center text-slate-400">
+                  <Camera className="w-12 h-12 mb-2 opacity-40" />
+                  <p className="text-sm">Tidak ada foto</p>
+                </div>
+              )}
             </div>
           </GlassCard>
 

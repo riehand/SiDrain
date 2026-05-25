@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
-import { unlink } from "fs/promises";
-import path from "path";
 
 // GET /api/reports/[id] — Get report detail with updates
 export async function GET(request, { params }) {
@@ -168,15 +166,7 @@ export async function PUT(request, { params }) {
       );
     }
 
-    // Delete old photo if a new one is provided and old one exists
-    if (photo_url && existing.photoUrl && photo_url !== existing.photoUrl && existing.photoUrl.startsWith("/uploads/")) {
-      try {
-        const oldPath = path.join(process.cwd(), "public", existing.photoUrl);
-        await unlink(oldPath);
-      } catch (e) {
-        // Ignore if file doesn't exist
-      }
-    }
+
 
     const report = await prisma.report.update({
       where: { id },
@@ -257,15 +247,7 @@ export async function DELETE(request, { params }) {
     // Delete the report
     await prisma.report.delete({ where: { id } });
 
-    // Try to delete the photo file
-    if (existing.photoUrl && existing.photoUrl.startsWith("/uploads/")) {
-      try {
-        const filePath = path.join(process.cwd(), "public", existing.photoUrl);
-        await unlink(filePath);
-      } catch (e) {
-        // Ignore if file doesn't exist
-      }
-    }
+
 
     return NextResponse.json({ success: true });
   } catch (error) {

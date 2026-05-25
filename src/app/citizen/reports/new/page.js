@@ -185,6 +185,11 @@ export default function CreateReportPage() {
         if (uploadRes.ok) {
           const uploadData = await uploadRes.json();
           photoUrl = uploadData.url;
+        } else {
+          const uploadErr = await uploadRes.json().catch(() => ({}));
+          setErrors({ submit: uploadErr.error || "Gagal mengupload foto" });
+          setLoading(false);
+          return;
         }
       }
 

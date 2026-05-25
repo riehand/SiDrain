@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 
-// POST /api/upload — Upload a photo
+// POST /api/upload — Upload a photo (returns Base64 data URL)
 export async function POST(request) {
   try {
     const session = await auth();
@@ -38,23 +36,14 @@ export async function POST(request) {
       );
     }
 
+    // Convert file to Base64 data URL
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const base64 = buffer.toString("base64");
+    const mimeType = file.type;
+    const dataUrl = `data:${mimeType};base64,${base64}`;
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadsDir, { recursive: true });
-
-    // Generate unique filename
-    const ext = file.name.split(".").pop();
-    const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
-    const filepath = path.join(uploadsDir, filename);
-
-    await writeFile(filepath, buffer);
-
-    const url = `/uploads/${filename}`;
-
-    return NextResponse.json({ success: true, url }, { status: 201 });
+    return NextResponse.json({ success: true, url: dataUrl }, { status: 201 });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(
